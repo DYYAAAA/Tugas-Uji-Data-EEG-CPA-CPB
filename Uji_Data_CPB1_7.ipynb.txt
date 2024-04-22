@@ -1,0 +1,357 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Library yang Diperlukan dalam Algoritma Klasifikasi"
+      ],
+      "metadata": {
+        "id": "FgGiwYFEPgVv"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "from sklearn.model_selection import train_test_split, cross_val_predict, KFold\n",
+        "from sklearn.svm import SVC\n",
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "from sklearn.metrics import classification_report"
+      ],
+      "metadata": {
+        "id": "iytR5Q39GTkV"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Mengiput Beberapa Data Excel sesuai Kategori"
+      ],
+      "metadata": {
+        "id": "RJ-5RiwsRp30"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "file_paths = ['/content/drive/My Drive/CPB1.xlsx',\n",
+        "              '/content/drive/My Drive/CPB2.xlsx',\n",
+        "              '/content/drive/My Drive/CPB3.xlsx',\n",
+        "              '/content/drive/My Drive/CPB4.xlsx',\n",
+        "              '/content/drive/My Drive/CPB5.xlsx',\n",
+        "              '/content/drive/My Drive/CPB6.xlsx',\n",
+        "              '/content/drive/My Drive/CPB7.xlsx']\n",
+        "datas = []\n",
+        "for file_path in file_paths:\n",
+        "    df = pd.read_excel(file_path)\n",
+        "    datas.append(df)\n",
+        "data = pd.concat(datas, ignore_index=True)"
+      ],
+      "metadata": {
+        "id": "UKk8ujt3GgAx"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Membagi Data Bebas (X) dan Data Terikat (Y)"
+      ],
+      "metadata": {
+        "id": "LPQh8G64R4m3"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X = data.iloc[1:, :-1].values\n",
+        "y = data.iloc[1:, -1].values"
+      ],
+      "metadata": {
+        "id": "gTH2FH-oHXXq"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Pengerjaan Algoritma SVM dan K-NN dengan metode Klasifikasi 10-fold CV"
+      ],
+      "metadata": {
+        "id": "Lsp97bvdSROo"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "iPvkHzX0GNth"
+      },
+      "outputs": [],
+      "source": [
+        "def svm_knn_cross_validation(X, y):\n",
+        "    # Algoritma SVM\n",
+        "    svm_model = SVC(kernel='linear')\n",
+        "    svm_predictions = cross_val_predict(svm_model, X, y, cv=10)\n",
+        "    svm_report = classification_report(y, svm_predictions, target_names=np.unique(y), zero_division=1)\n",
+        "    print(\"SVM Classification Report (10-fold CV):\\n\", svm_report)\n",
+        "    # Algoritma K-NN\n",
+        "    knn_model = KNeighborsClassifier(n_neighbors=5)\n",
+        "    knn_predictions = cross_val_predict(knn_model, X, y, cv=10)\n",
+        "    knn_report = classification_report(y, knn_predictions, target_names=np.unique(y), zero_division=1)\n",
+        "    print(\"K-NN Classification Report (10-fold CV):\\n\", knn_report)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Output metode Klasikasi 10-fold CV"
+      ],
+      "metadata": {
+        "id": "AjAZiSnZS3s4"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "svm_knn_cross_validation(X, y)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4FoSvOr5S4LJ",
+        "outputId": "c12c76ab-87e3-42df-c596-4cb2b592e157"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "SVM Classification Report (10-fold CV):\n",
+            "               precision    recall  f1-score   support\n",
+            "\n",
+            "           A       0.44      1.00      0.62       799\n",
+            "           B       1.00      0.00      0.00       200\n",
+            "           C       1.00      0.00      0.00       500\n",
+            "           D       1.00      0.00      0.00       300\n",
+            "\n",
+            "    accuracy                           0.44      1799\n",
+            "   macro avg       0.86      0.25      0.15      1799\n",
+            "weighted avg       0.75      0.44      0.27      1799\n",
+            "\n",
+            "K-NN Classification Report (10-fold CV):\n",
+            "               precision    recall  f1-score   support\n",
+            "\n",
+            "           A       0.75      0.90      0.82       799\n",
+            "           B       0.13      0.06      0.08       200\n",
+            "           C       0.78      0.83      0.80       500\n",
+            "           D       0.64      0.47      0.54       300\n",
+            "\n",
+            "    accuracy                           0.72      1799\n",
+            "   macro avg       0.58      0.57      0.56      1799\n",
+            "weighted avg       0.67      0.72      0.69      1799\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Pengerjaan Algoritma SVM dan K-NN dengan metode Klasifikasi 75% training, 25% testing"
+      ],
+      "metadata": {
+        "id": "v8jhkdkPSiov"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def svm_knn_split(X, y):\n",
+        "    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)\n",
+        "    # SVM\n",
+        "    svm_model = SVC(kernel='linear')\n",
+        "    svm_model.fit(X_train, y_train)\n",
+        "    svm_predictions = svm_model.predict(X_test)\n",
+        "    svm_report = classification_report(y_test, svm_predictions, target_names=np.unique(y), zero_division=1)\n",
+        "    print(\"SVM Classification Report (75% Training, 25% Testing):\\n\", svm_report)\n",
+        "    # K-NN\n",
+        "    knn_model = KNeighborsClassifier(n_neighbors=5)\n",
+        "    knn_model.fit(X_train, y_train)\n",
+        "    knn_predictions = knn_model.predict(X_test)\n",
+        "    knn_report = classification_report(y_test, knn_predictions, target_names=np.unique(y), zero_division=1)\n",
+        "    print(\"K-NN Classification Report (75% Training, 25% Testing):\\n\", knn_report)"
+      ],
+      "metadata": {
+        "id": "uc7_l0HVSi3v"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Output metode Klasifikasi 75% training, 25% testing"
+      ],
+      "metadata": {
+        "id": "pkATgTt7SjDX"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "svm_knn_split(X, y)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hPKpCibGTZ6w",
+        "outputId": "d8cd0655-3ed5-4d7f-a2a5-a31f0a9b1fa3"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "SVM Classification Report (75% Training, 25% Testing):\n",
+            "               precision    recall  f1-score   support\n",
+            "\n",
+            "           A       0.42      1.00      0.59       187\n",
+            "           B       1.00      0.00      0.00        55\n",
+            "           C       1.00      0.00      0.00       134\n",
+            "           D       1.00      0.00      0.00        74\n",
+            "\n",
+            "    accuracy                           0.42       450\n",
+            "   macro avg       0.85      0.25      0.15       450\n",
+            "weighted avg       0.76      0.42      0.24       450\n",
+            "\n",
+            "K-NN Classification Report (75% Training, 25% Testing):\n",
+            "               precision    recall  f1-score   support\n",
+            "\n",
+            "           A       0.68      0.83      0.75       187\n",
+            "           B       0.15      0.07      0.10        55\n",
+            "           C       0.73      0.68      0.70       134\n",
+            "           D       0.51      0.47      0.49        74\n",
+            "\n",
+            "    accuracy                           0.64       450\n",
+            "   macro avg       0.52      0.51      0.51       450\n",
+            "weighted avg       0.60      0.64      0.61       450\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Pengerjaan Algoritma SVM dan K-NN dengan metode Klasifikasi 50% training, 25% validation, dan 25% testing"
+      ],
+      "metadata": {
+        "id": "xo-FLLCjTaGH"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def svm_knn_split_validation(X, y):\n",
+        "    X_train_val, X_test, y_train_val, y_test = train_test_split(X, y, test_size=0.25, random_state=42)\n",
+        "    X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=0.33, random_state=42)\n",
+        "    # SVM\n",
+        "    svm_model = SVC(kernel='linear')\n",
+        "    svm_model.fit(X_train, y_train)\n",
+        "    svm_predictions = svm_model.predict(X_test)\n",
+        "    svm_report = classification_report(y_test, svm_predictions, target_names=np.unique(y), zero_division=1)\n",
+        "    print(\"SVM Classification Report (50% Training, 25% Validation, 25% Testing):\\n\", svm_report)\n",
+        "    # K-NN\n",
+        "    knn_model = KNeighborsClassifier(n_neighbors=5)\n",
+        "    knn_model.fit(X_train, y_train)\n",
+        "    knn_predictions = knn_model.predict(X_test)\n",
+        "    knn_report = classification_report(y_test, knn_predictions, target_names=np.unique(y), zero_division=1)\n",
+        "    print(\"K-NN Classification Report (50% Training, 25% Validation, 25% Testing):\\n\", knn_report)"
+      ],
+      "metadata": {
+        "id": "Hdjt9kkRSjOZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Output metode Klasifikasi 50% training, 25% validation, dan 25% testing"
+      ],
+      "metadata": {
+        "id": "mFME12lCTqjZ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "svm_knn_split_validation(X, y)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ZhItOCZATqtg",
+        "outputId": "cb518c2c-2b23-49f2-debb-6db074a2d5f1"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "SVM Classification Report (50% Training, 25% Validation, 25% Testing):\n",
+            "               precision    recall  f1-score   support\n",
+            "\n",
+            "           A       0.42      1.00      0.59       187\n",
+            "           B       1.00      0.00      0.00        55\n",
+            "           C       1.00      0.00      0.00       134\n",
+            "           D       1.00      0.00      0.00        74\n",
+            "\n",
+            "    accuracy                           0.42       450\n",
+            "   macro avg       0.85      0.25      0.15       450\n",
+            "weighted avg       0.76      0.42      0.24       450\n",
+            "\n",
+            "K-NN Classification Report (50% Training, 25% Validation, 25% Testing):\n",
+            "               precision    recall  f1-score   support\n",
+            "\n",
+            "           A       0.67      0.86      0.75       187\n",
+            "           B       0.21      0.05      0.09        55\n",
+            "           C       0.63      0.60      0.62       134\n",
+            "           D       0.43      0.39      0.41        74\n",
+            "\n",
+            "    accuracy                           0.61       450\n",
+            "   macro avg       0.49      0.48      0.47       450\n",
+            "weighted avg       0.56      0.61      0.57       450\n",
+            "\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
